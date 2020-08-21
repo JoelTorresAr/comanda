@@ -216,10 +216,27 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     addNote: function addNote() {
-      this.dialog = false;
+      var _this3 = this;
+
+      var url = "/conexion/cd_imprimir.php?nomFun=tb_new_notacmd&parm_pin=".concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&imprimmir=4&ip=").concat(this.ip, "&parm_nota=").concat(this.noteCmd);
+      axios.get(url).then(function (_ref3) {
+        var data = _ref3.data;
+        _this3.dialog = false;
+
+        if (data.msg == "OK") {} else {
+          Swal.fire({
+            title: "Advertencia!",
+            text: data.msg,
+            icon: "warning",
+            confirmButtonText: "Cool"
+          });
+        }
+      })["catch"](function (error) {
+        console.log(error);
+      });
     },
     alterList: function alterList(item, action) {
-      var _this3 = this;
+      var _this4 = this;
 
       var cant = 1;
 
@@ -240,12 +257,12 @@ __webpack_require__.r(__webpack_exports__);
         });
       } else {
         var url = "/conexion/cd_articulo.php?&parm_pin=".concat(this.pin, "&parm_id_mesas=").concat(this.mesaId, "&parm_id_prod=").concat(item.idprod, "&parm_cant=").concat(cant, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&articulo=3&ip=").concat(this.ip);
-        axios.get(url).then(function (_ref3) {
-          var data = _ref3.data;
+        axios.get(url).then(function (_ref4) {
+          var data = _ref4.data;
 
           if (data.msg == "Ok") {
-            _this3.articlesEnMesa = data.prod;
-            _this3.total = data.total;
+            _this4.articlesEnMesa = data.prod;
+            _this4.total = data.total;
           } else {
             Swal.fire({
               title: "Advertencia!",
@@ -278,17 +295,17 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     sendKitchen: function sendKitchen() {
-      var _this4 = this;
+      var _this5 = this;
 
-      var url = "/conexion/cd_imprimir.php?nomFun=tb_enviar_cmd&parm_pin=".concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&imprimmir=2&ip=").concat(this.ip, "&parm_nota=").concat(this.noteCmd);
-      console.log(url);
-      axios.get(url).then(function (_ref4) {
-        var data = _ref4.data;
+      var url = "/conexion/cd_imprimir.php?nomFun=tb_enviar_cmd&parm_pin=".concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&imprimmir=2&ip=").concat(this.ip, "&parm_nota=").concat(this.noteCmd); //console.log(url)
+
+      axios.get(url).then(function (_ref5) {
+        var data = _ref5.data;
 
         if (data.msg == "OK") {
-          _this4.$store.dispatch("BREAK");
+          _this5.$store.dispatch("BREAK");
 
-          _this4.$router.push({
+          _this5.$router.push({
             name: "Home"
           });
 
@@ -311,21 +328,21 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     sendPrecuenta: function sendPrecuenta() {
-      var _this5 = this;
+      var _this6 = this;
 
       var url = "/conexion/cd_imprimir.php?nomFun=tb_cobrar_mesa&parm_pin=".concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_dade=1&parm_id_mesero=").concat(this.userID, "&imprimmir=3&ip=").concat(this.ip);
-      axios.get(url).then(function (_ref5) {
-        var data = _ref5.data;
+      axios.get(url).then(function (_ref6) {
+        var data = _ref6.data;
 
         if (data.msg == "Ok") {
-          _this5.$store.dispatch("BREAK");
+          _this6.$store.dispatch("BREAK");
 
-          _this5.$router.push({
+          _this6.$router.push({
             name: "Home"
           });
 
-          _this5.articlesEnMesa = data.prod;
-          _this5.total = data.total;
+          _this6.articlesEnMesa = data.prod;
+          _this6.total = data.total;
         } else {
           Swal.fire({
             title: "Advertencia!",

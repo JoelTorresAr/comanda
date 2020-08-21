@@ -40,10 +40,9 @@ if ($comanda==2) {
   $id_prod = filter_input(INPUT_GET, 'parm_id_prod');
   $id_cmd = filter_input(INPUT_GET, 'parm_id_cmd');
   $id_mesero = filter_input(INPUT_GET, 'parm_id_mesero');
-  $nota = filter_input(INPUT_GET, 'parm_nota');
   
  //http://192.168.0.2:7000/?nomFun=tb_enviar_cmd&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$
-  $url = $ip."?nomFun=tb_enviar_cmd&parm_pin=".$pin."&parm_piso=20&parm_id_mesas=".$id_mesa."&parm_id_cmd=".$id_cmd."&parm_id_mesero=".$id_mesero."&parm_tipo=M$&parm_nota=".$nota;
+  $url = $ip."?nomFun=tb_enviar_cmd&parm_pin=".$pin."&parm_piso=20&parm_id_mesas=".$id_mesa."&parm_id_cmd=".$id_cmd."&parm_id_mesero=".$id_mesero."&parm_tipo=M$";
       $ch_factura = curl_init();
       curl_setopt($ch_factura, CURLOPT_URL, $url);
       curl_setopt($ch_factura, CURLOPT_POST, 1);
@@ -68,6 +67,30 @@ if ($comanda==3) {
  //${this.ip}/?nomFun=tb_cobrar_mesa&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_dade=1&parm_id_mesero=${this.userID}&parm_tipo=M$
  //http://192.168.0.2:7000/?nomFun=tb_cobrar_mesa&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_dade=1&parm_id_mesero=${this.userID}&parm_tipo=M$
   $url = $ip."?nomFun=tb_cobrar_mesa&parm_pin=".$pin."&parm_piso=20&parm_id_mesas=".$id_mesa."&parm_id_cmd=".$id_cmd."&parm_dade=1&parm_id_mesero=".$id_mesero."&parm_tipo=M$";
+      $ch_factura = curl_init();
+      curl_setopt($ch_factura, CURLOPT_URL, $url);
+      curl_setopt($ch_factura, CURLOPT_POST, 1);
+      curl_setopt($ch_factura, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($ch_factura, CURLOPT_POSTFIELDS, $_GET);
+      curl_setopt($ch_factura, CURLOPT_RETURNTRANSFER, true);
+      $respuesta_factura = curl_exec($ch_factura);
+      curl_close($ch_factura);
+   
+    //echo $array = json_decode( json_encode( $respuesta_factura ), true );
+    echo $respuesta_factura;
+}
+
+ ///enviar nota de comanda
+ if ($comanda==4) {
+  $ip = filter_input(INPUT_GET, 'ip');
+  $pin = filter_input(INPUT_GET, 'parm_pin');
+  $id_mesa = filter_input(INPUT_GET, 'parm_id_mesas');
+  $id_prod = filter_input(INPUT_GET, 'parm_id_prod');
+  $id_cmd = filter_input(INPUT_GET, 'parm_id_cmd');
+  $id_mesero = filter_input(INPUT_GET, 'parm_id_mesero');
+  $nota = filter_input(INPUT_GET, 'parm_nota');
+ //http://192.168.0.2:7000/?nomFun=tb_enviar_cmd&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$
+  $url = $ip."?nomFun=tb_new_notacmd&parm_pin=".$pin."&parm_piso=20&parm_id_mesas=".$id_mesa."&parm_id_cmd=".$id_cmd."&parm_id_mesero=".$id_mesero."&parm_nota=".$nota."&parm_tipo=M$";
       $ch_factura = curl_init();
       curl_setopt($ch_factura, CURLOPT_URL, $url);
       curl_setopt($ch_factura, CURLOPT_POST, 1);

@@ -37,7 +37,7 @@
         <v-icon>mdi-arrow-left-bold</v-icon>
       </v-btn>
     </v-app-bar>
-    <v-main app  height="40vh">
+    <v-main app height="40vh">
       <v-toolbar dense min-width="65vw">
         <v-slide-group multiple show-arrows>
           <v-slide-item v-for="(item, index) in familias" :key="index" v-slot:default="{ active }">
@@ -197,7 +197,24 @@ export default {
         });
     },
     addNote() {
-      this.dialog = false;
+      var url = `/conexion/cd_imprimir.php?nomFun=tb_new_notacmd&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&imprimmir=4&ip=${this.ip}&parm_nota=${this.noteCmd}`;
+      axios
+        .get(url)
+        .then(({ data }) => {
+          this.dialog = false;
+          if (data.msg == "OK") {
+          } else {
+            Swal.fire({
+              title: "Advertencia!",
+              text: data.msg,
+              icon: "warning",
+              confirmButtonText: "Cool"
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     alterList(item, action) {
       var cant = 1;
@@ -254,7 +271,7 @@ export default {
     },
     sendKitchen() {
       var url = `/conexion/cd_imprimir.php?nomFun=tb_enviar_cmd&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&imprimmir=2&ip=${this.ip}&parm_nota=${this.noteCmd}`;
-      console.log(url)
+      //console.log(url)
       axios
         .get(url)
         .then(({ data }) => {
