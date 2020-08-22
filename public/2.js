@@ -91,12 +91,43 @@ __webpack_require__.r(__webpack_exports__);
 
       }
     },
+    loggin2: function loggin2() {
+      /*
+      this.loading = true;
+      express.get(`/proxy`,(req,res) => {
+      axios
+        .get(`${this.ip}/?nomFun=tb_login&parm_cod=Xyfk8Gixnf&parm_new=0&parm_pin=${this.password}&parm_tipo=M$`)
+        .then(({ data }) => {
+          console.log(data);
+          this.loading = false;
+          if (data.status === 1) {
+            this.$store.commit("SET_PIN", this.password);
+            this.$store.commit("SET_PISOS", JSON.stringify(data.pisos));
+            this.$store.commit("SET_FAMILIAS", JSON.stringify(data.fam));
+            this.$store.commit("SET_USER_NAME", data.nombre);
+            this.$store.commit("SET_USER_ID", data.id_usr);
+            this.$router.push({ name: "Home" });
+          } else {
+            this.password = "";
+            Swal.fire({
+              title: "Advertencia!",
+              text: data.msg,
+              icon: "warning",
+              confirmButtonText: "Cool"
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      })*/
+    },
     loggin: function loggin() {
       var _this = this;
 
-      this.loading = true;
-      axios.get("/conexion/cd_conectar.php?ip=".concat(this.ip, "&pin=").concat(this.password)).then(function (_ref) {
+      axios.get("".concat(this.ip, "/?nomFun=tb_login&parm_cod=Xyfk8Gixnf&parm_new=0&parm_pin=").concat(this.password, "&parm_tipo=M$")).then(function (_ref) {
         var data = _ref.data;
+        console.log(data);
         _this.loading = false;
 
         if (data.status === 1) {
@@ -114,6 +145,7 @@ __webpack_require__.r(__webpack_exports__);
             name: "Home"
           });
         } else {
+          _this.password = "";
           Swal.fire({
             title: "Advertencia!",
             text: data.msg,

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar  app clipped-left style="height: 3rem;">
+    <v-app-bar app clipped-right style="height: 3rem;">
       <v-slide-group multiple show-arrows>
         <v-slide-item v-for="(item, index) in pisos" :key="index" v-slot:default="{ active }">
           <v-btn
@@ -27,39 +27,37 @@
             height="6rem"
             width="8rem"
             class="pa-2 mt-4 ml-4 mr-3"
-            @click="newComanda(item,index)"
+            @click="actionMesa(item,index)"
           >
-            <v-card-title>{{item.nombre}}</v-card-title>
-            <v-card-text>
+            <v-card-title class="p-0">
+              {{item.nombre}}
+              <i v-show="showJoins" :class="checkJoin(index)"></i>
+            </v-card-title>
+            <v-card-text class="pb-0">
               {{item.mesero}}
               <i :class="getIcon(item)"></i>
+            </v-card-text>
+            <v-card-text class="p-0">
+              <div class="mesa__header">
+                <i v-show="item.juntada == 1" class="fas fa-link black--text"></i>
+              </div>
             </v-card-text>
           </v-card>
         </v-card>
       </perfect-scrollbar>
     </v-main>
-    <!--
-    <v-navigation-drawer app permanent right absolute clipped>
+    <v-navigation-drawer app permanent right clipped width="12rem" height="70vh">
       <v-list dense>
-        <v-list-item>
+        <v-list-item @click="actionButton('JUNTAR')">
           <v-list-item-icon>
             <v-icon>fas fa-circle-notch</v-icon>
           </v-list-item-icon>
 
           <v-list-item-content>
-            <v-list-item-title>CREAR</v-list-item-title>
+            <v-list-item-title>{{showJoins==true?'OK':'JUNTAR'}}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item>
-          <v-list-item-icon>
-            <v-icon>fas fa-circle-notch</v-icon>
-          </v-list-item-icon>
-
-          <v-list-item-content>
-            <v-list-item-title>JUNTAR</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
+        <v-list-item @click="actionButton('COBRAR')">
           <v-list-item-icon>
             <v-icon>fas fa-circle-notch</v-icon>
           </v-list-item-icon>
@@ -68,7 +66,7 @@
             <v-list-item-title>COBRAR</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <v-list-item @click="actionButton('ELIMINAR')">
           <v-list-item-icon>
             <v-icon>fas fa-circle-notch</v-icon>
           </v-list-item-icon>
@@ -77,7 +75,7 @@
             <v-list-item-title>ELIMINAR</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <v-list-item @click="actionButton('SEPARAR')">
           <v-list-item-icon>
             <v-icon>fas fa-circle-notch</v-icon>
           </v-list-item-icon>
@@ -86,7 +84,7 @@
             <v-list-item-title>SEPARAR</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <v-list-item @click="actionButton('MOVER')">
           <v-list-item-icon>
             <v-icon>fas fa-circle-notch</v-icon>
           </v-list-item-icon>
@@ -97,7 +95,6 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    -->
     <v-footer app class="text--accent-3" style="height: 3rem;">
       <v-spacer></v-spacer>
       <v-btn
@@ -148,12 +145,21 @@
 export default {
   data: () => ({
     loading: true,
+    showJoins: false,
+    buttonKeys: [
+      { accion: "JUNTAR", icon: "fas fa-circle-notch" },
+      { accion: "COBRAR", icon: "fas fa-circle-notch" },
+      { accion: "ELIMINAR", icon: "fas fa-circle-notch" },
+      { accion: "SEPARAR", icon: "fas fa-circle-notch" },
+      { accion: "MOVER", icon: "fas fa-circle-notch" }
+    ],
     ip: "",
     pisos: "",
     pisoActual: "0",
     mesas: "",
     mesaId: "",
     mesaActual: "",
+    arrayMesas: [],
     pin: "",
     dialog: false,
     numcomen: 1
@@ -187,6 +193,7 @@ export default {
         )
         .then(({ data }) => {
           this.loading = false;
+          console.log(data.mesas);
           this.mesas = data.mesas;
         })
         .catch(error => {
@@ -215,6 +222,44 @@ export default {
           break;
       }
       return icon;
+    },
+    actionButton(key) {
+      switch (key) {
+        case "JUNTAR":
+          if (this.showJoins) {
+            this.showJoins = !this.showJoins;
+            this.unirMesas();
+          } else {
+            this.showJoins = !this.showJoins;
+          }
+          break;
+
+        default:
+          break;
+      }
+    },
+    actionMesa(item, index) {
+      var st_cmd = item.st_cmd;
+      if (this.showJoins) {
+        var mesa = {
+          id: index,
+          id_cmd: item.id_cmd,
+          st_cmd: item.st_cmd,
+          st_join: 1
+        };
+        this.arrayMesas.push(mesa);
+      } else {
+        this.newComanda(item, index);
+      }
+    },
+    checkJoin(index) {
+      var std = "mdi mdi-checkbox-blank-outline";
+      this.arrayMesas.forEach(e => {
+        if (e.id == index) {
+          std = "mdi mdi-checkbox-marked-outline";
+        }
+      });
+      return std;
     },
     newComanda(item, index) {
       this.mesaId = index;
@@ -295,6 +340,38 @@ export default {
           console.log(error);
         });
     },
+    unirMesas() {
+      var id = this.$store.getters.getUSERID;
+      var id_cmd = "";
+      var id_mesas = "";
+      this.arrayMesas.forEach(e => {
+        if (e.id_cmd != 0) {
+          id_cmd = e.id_cmd;
+        }
+        id_mesas = id_mesas + "," + String(e.id);
+      });
+      var url = `/conexion/cd_comanda.php?ip=${this.ip}&parm_id_cmd=${id_cmd}&parm_id_mesas=${id_mesas}&comanda=3`;
+      axios
+        .get(url)
+        .then(({ data }) => {
+          if (data.msg == "Ok") {
+            this.getMesas(this.pisoActual);
+          } else {
+            Swal.fire({
+              title: "Advertencia!",
+              text: data.msg,
+              icon: "warning",
+              confirmButtonText: "Cool"
+            });
+            this.getMesas(this.pisoActual);
+            this.arrayMesas = [];
+          }
+        })
+        .catch(error => {
+          this.arrayMesas = [];
+          console.log(error);
+        });
+    },
     logout() {
       this.$store.commit("SET_PIN", null);
       this.$router.push({ name: "Login" });
@@ -311,5 +388,10 @@ export default {
 }
 .__vuescroll .hasVBar {
   height: 60vh !important;
+}
+.mesa__header {
+  display: flex;
+  width: 95%;
+  justify-content: space-between;
 }
 </style>

@@ -22,7 +22,24 @@ try {
 
 window.axios = require('axios');
 
-//window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+axios.defaults.headers.common['Access-Control-Request-Headers'] = 'Origin,X-Requested-With,Content-Type,Accept'
+axios.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8'
+/*
+window.axios.defaults.withCredentials = true;
+window.axios.defaults.headers.common['X-XSRF-TOKEN'] = 'eyJpdiI6IldxN28rRThRYXRSMk5oTkpkOGJOUWc9PSIsInZhbHVlIjoiWm55YWZWU3Izc1JYaVJQV3VrdjdaOFh0S2o5N3pqMkdoaWNUVnM2K2ViUXQ5NnVtY0VBSStMOFFxNFVWWnpEbkgzVDNEUDJqemJFN2ZPZFQ2dGczTjJyYmIzNmw3VkU5U3RRUUdGNmlZWTdxdExGU0RmZmZRWFZKZTFPTnNiUDIiLCJtYWMiOiI4N2MzMjE3ODQxZmQ1YmJiZDNiMGEzZGM0OTE2MjI1NGIyOWJkMmNiY2MzODkwMWFkNmFlY2JkMmJhNzM2ZDc5In0=';
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';*/
+//window.axios.defaults.headers.common['Access-Control-Allow-Origin'] =  'htttp://192.168.0.14:8080';
+/*
+//Proxy
+const expr = require('express');
+
+window.express = expr();
+window.express.use((req,res,next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
+});
+
+window.listen(8080,() => console.log(`listening on 8080`));*/
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

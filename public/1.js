@@ -152,19 +152,34 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       loading: true,
+      showJoins: false,
+      buttonKeys: [{
+        accion: "JUNTAR",
+        icon: "fas fa-circle-notch"
+      }, {
+        accion: "COBRAR",
+        icon: "fas fa-circle-notch"
+      }, {
+        accion: "ELIMINAR",
+        icon: "fas fa-circle-notch"
+      }, {
+        accion: "SEPARAR",
+        icon: "fas fa-circle-notch"
+      }, {
+        accion: "MOVER",
+        icon: "fas fa-circle-notch"
+      }],
       ip: "",
       pisos: "",
       pisoActual: "0",
       mesas: "",
       mesaId: "",
       mesaActual: "",
+      arrayMesas: [],
       pin: "",
       dialog: false,
       numcomen: 1
@@ -199,6 +214,7 @@ __webpack_require__.r(__webpack_exports__);
       axios.get("/conexion/cd_mesas.php?ip=".concat(this.ip, "&pin=").concat(this.pin, "&piso=").concat(piso)).then(function (_ref) {
         var data = _ref.data;
         _this.loading = false;
+        console.log(data.mesas);
         _this.mesas = data.mesas;
       })["catch"](function (error) {
         console.log(error);
@@ -228,6 +244,46 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       return icon;
+    },
+    actionButton: function actionButton(key) {
+      switch (key) {
+        case "JUNTAR":
+          if (this.showJoins) {
+            this.showJoins = !this.showJoins;
+            this.unirMesas();
+          } else {
+            this.showJoins = !this.showJoins;
+          }
+
+          break;
+
+        default:
+          break;
+      }
+    },
+    actionMesa: function actionMesa(item, index) {
+      var st_cmd = item.st_cmd;
+
+      if (this.showJoins) {
+        var mesa = {
+          id: index,
+          id_cmd: item.id_cmd,
+          st_cmd: item.st_cmd,
+          st_join: 1
+        };
+        this.arrayMesas.push(mesa);
+      } else {
+        this.newComanda(item, index);
+      }
+    },
+    checkJoin: function checkJoin(index) {
+      var std = "mdi mdi-checkbox-blank-outline";
+      this.arrayMesas.forEach(function (e) {
+        if (e.id == index) {
+          std = "mdi mdi-checkbox-marked-outline";
+        }
+      });
+      return std;
     },
     newComanda: function newComanda(item, index) {
       var _this2 = this;
@@ -322,6 +378,42 @@ __webpack_require__.r(__webpack_exports__);
         console.log(error);
       });
     },
+    unirMesas: function unirMesas() {
+      var _this4 = this;
+
+      var id = this.$store.getters.getUSERID;
+      var id_cmd = "";
+      var id_mesas = "";
+      this.arrayMesas.forEach(function (e) {
+        if (e.id_cmd != 0) {
+          id_cmd = e.id_cmd;
+        }
+
+        id_mesas = id_mesas + "," + String(e.id);
+      });
+      var url = "/conexion/cd_comanda.php?ip=".concat(this.ip, "&parm_id_cmd=").concat(id_cmd, "&parm_id_mesas=").concat(id_mesas, "&comanda=3");
+      axios.get(url).then(function (_ref4) {
+        var data = _ref4.data;
+
+        if (data.msg == "Ok") {
+          _this4.getMesas(_this4.pisoActual);
+        } else {
+          Swal.fire({
+            title: "Advertencia!",
+            text: data.msg,
+            icon: "warning",
+            confirmButtonText: "Cool"
+          });
+
+          _this4.getMesas(_this4.pisoActual);
+
+          _this4.arrayMesas = [];
+        }
+      })["catch"](function (error) {
+        _this4.arrayMesas = [];
+        console.log(error);
+      });
+    },
     logout: function logout() {
       this.$store.commit("SET_PIN", null);
       this.$router.push({
@@ -345,7 +437,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.centered-input input {\r\n  text-align: center;\n}\n#inspireme--body--index {\r\n  height: 70vh;\n}\n.__vuescroll .hasVBar {\r\n  height: 60vh !important;\n}\r\n", ""]);
+exports.push([module.i, "\n.centered-input input {\r\n  text-align: center;\n}\n#inspireme--body--index {\r\n  height: 70vh;\n}\n.__vuescroll .hasVBar {\r\n  height: 60vh !important;\n}\n.mesa__header {\r\n  display: flex;\r\n  width: 95%;\r\n  justify-content: space-between;\n}\r\n", ""]);
 
 // exports
 
@@ -404,7 +496,7 @@ var render = function() {
         "v-app-bar",
         {
           staticStyle: { height: "3rem" },
-          attrs: { app: "", "clipped-left": "" }
+          attrs: { app: "", "clipped-right": "" }
         },
         [
           _c(
@@ -499,25 +591,210 @@ var render = function() {
                       },
                       on: {
                         click: function($event) {
-                          return _vm.newComanda(item, index)
+                          return _vm.actionMesa(item, index)
                         }
                       }
                     },
                     [
-                      _c("v-card-title", [_vm._v(_vm._s(item.nombre))]),
+                      _c("v-card-title", { staticClass: "p-0" }, [
+                        _vm._v(
+                          "\n            " +
+                            _vm._s(item.nombre) +
+                            "\n            "
+                        ),
+                        _c("i", {
+                          directives: [
+                            {
+                              name: "show",
+                              rawName: "v-show",
+                              value: _vm.showJoins,
+                              expression: "showJoins"
+                            }
+                          ],
+                          class: _vm.checkJoin(index)
+                        })
+                      ]),
                       _vm._v(" "),
-                      _c("v-card-text", [
+                      _c("v-card-text", { staticClass: "pb-0" }, [
                         _vm._v(
                           "\n            " +
                             _vm._s(item.mesero) +
                             "\n            "
                         ),
                         _c("i", { class: _vm.getIcon(item) })
+                      ]),
+                      _vm._v(" "),
+                      _c("v-card-text", { staticClass: "p-0" }, [
+                        _c("div", { staticClass: "mesa__header" }, [
+                          _c("i", {
+                            directives: [
+                              {
+                                name: "show",
+                                rawName: "v-show",
+                                value: item.juntada == 1,
+                                expression: "item.juntada == 1"
+                              }
+                            ],
+                            staticClass: "fas fa-link black--text"
+                          })
+                        ])
                       ])
                     ],
                     1
                   )
                 }),
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-navigation-drawer",
+        {
+          attrs: {
+            app: "",
+            permanent: "",
+            right: "",
+            clipped: "",
+            width: "12rem",
+            height: "70vh"
+          }
+        },
+        [
+          _c(
+            "v-list",
+            { attrs: { dense: "" } },
+            [
+              _c(
+                "v-list-item",
+                {
+                  on: {
+                    click: function($event) {
+                      return _vm.actionButton("JUNTAR")
+                    }
+                  }
+                },
+                [
+                  _c(
+                    "v-list-item-icon",
+                    [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-item-content",
+                    [
+                      _c("v-list-item-title", [
+                        _vm._v(_vm._s(_vm.showJoins == true ? "OK" : "JUNTAR"))
+                      ])
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-list-item",
+                {
+                  on: {
+                    click: function($event) {
+                      return _vm.actionButton("COBRAR")
+                    }
+                  }
+                },
+                [
+                  _c(
+                    "v-list-item-icon",
+                    [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-item-content",
+                    [_c("v-list-item-title", [_vm._v("COBRAR")])],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-list-item",
+                {
+                  on: {
+                    click: function($event) {
+                      return _vm.actionButton("ELIMINAR")
+                    }
+                  }
+                },
+                [
+                  _c(
+                    "v-list-item-icon",
+                    [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-item-content",
+                    [_c("v-list-item-title", [_vm._v("ELIMINAR")])],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-list-item",
+                {
+                  on: {
+                    click: function($event) {
+                      return _vm.actionButton("SEPARAR")
+                    }
+                  }
+                },
+                [
+                  _c(
+                    "v-list-item-icon",
+                    [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-item-content",
+                    [_c("v-list-item-title", [_vm._v("SEPARAR")])],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-list-item",
+                {
+                  on: {
+                    click: function($event) {
+                      return _vm.actionButton("MOVER")
+                    }
+                  }
+                },
+                [
+                  _c(
+                    "v-list-item-icon",
+                    [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-item-content",
+                    [_c("v-list-item-title", [_vm._v("MOVER")])],
+                    1
+                  )
+                ],
                 1
               )
             ],

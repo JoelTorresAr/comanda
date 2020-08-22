@@ -14,3 +14,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/{any}', 'HomeController@spa')->name('home')->where('any','.*');
+Route::get('/proxy', 'HomeController@proxy');

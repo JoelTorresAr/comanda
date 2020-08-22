@@ -25,4 +25,13 @@ class HomeController extends Controller
     {
         return view('spa');
     }
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function proxy()
+    {
+        return ['status' => '200', 'msg' => 'proxy ejecutado'];
+    }
 }
