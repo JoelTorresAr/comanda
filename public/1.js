@@ -152,11 +152,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       loading: true,
       showJoins: false,
+      switchNavegator: false,
       buttonKeys: [{
         accion: "JUNTAR",
         icon: "fas fa-circle-notch"
@@ -211,10 +214,9 @@ __webpack_require__.r(__webpack_exports__);
       this.mesas = [];
       this.loading = true;
       this.pisoActual = piso;
-      axios.get("/conexion/cd_mesas.php?ip=".concat(this.ip, "&pin=").concat(this.pin, "&piso=").concat(piso)).then(function (_ref) {
+      axios.get("".concat(this.ip, "/?nomFun=tb_mesas&parm_pin=").concat(this.pin, "&parm_piso=").concat(piso, "&parm_tipo=M$")).then(function (_ref) {
         var data = _ref.data;
         _this.loading = false;
-        console.log(data.mesas);
         _this.mesas = data.mesas;
       })["catch"](function (error) {
         console.log(error);
@@ -236,7 +238,7 @@ __webpack_require__.r(__webpack_exports__);
 
         case "4":
           //Esta en preparción
-          icon = "mdi-pot-steam";
+          icon = "mdi mdi-pot-steam";
           break;
 
         default:
@@ -257,6 +259,15 @@ __webpack_require__.r(__webpack_exports__);
 
           break;
 
+        /*case "SEPARAR":
+          if (this.showJoins) {
+            this.showJoins = !this.showJoins;
+            this.separarMesas();
+          } else {
+            this.showJoins = !this.showJoins;
+          }
+          break;*/
+
         default:
           break;
       }
@@ -265,13 +276,27 @@ __webpack_require__.r(__webpack_exports__);
       var st_cmd = item.st_cmd;
 
       if (this.showJoins) {
-        var mesa = {
-          id: index,
-          id_cmd: item.id_cmd,
-          st_cmd: item.st_cmd,
-          st_join: 1
-        };
-        this.arrayMesas.push(mesa);
+        if (st_cmd != "3" & st_cmd != "4") {
+          var existe = false;
+          this.arrayMesas.forEach(function (e) {
+            if (e.id == index) {
+              existe = true;
+            }
+          });
+
+          if (existe) {
+            var i = this.arrayMesas.indexOf(item);
+            this.arrayMesas.splice(i, 1);
+          } else {
+            var mesa = {
+              id: index,
+              id_cmd: item.id_cmd,
+              st_cmd: item.st_cmd,
+              st_join: 1
+            };
+            this.arrayMesas.push(mesa);
+          }
+        }
       } else {
         this.newComanda(item, index);
       }
@@ -283,6 +308,16 @@ __webpack_require__.r(__webpack_exports__);
           std = "mdi mdi-checkbox-marked-outline";
         }
       });
+      return std;
+    },
+    showJoinsMesa: function showJoinsMesa(item) {
+      var st_cmd = item.st_cmd;
+      var std = false;
+
+      if (this.showJoins & st_cmd != "3" & st_cmd != "4") {
+        std = true;
+      }
+
       return std;
     },
     newComanda: function newComanda(item, index) {
@@ -297,7 +332,7 @@ __webpack_require__.r(__webpack_exports__);
       if (item.st_cmd == "") {
         this.dialog = true;
       } else {
-        var url = "/conexion/cd_comanda.php?ip=".concat(this.ip, "&pin=").concat(this.pin, "&piso=").concat(this.pisoActual, "&parm_id_cmd=").concat(item.id_cmd, "&parm_tipocmd=1&parm_id_mesero=").concat(id, "&comanda=1");
+        var url = "".concat(this.ip, "/?nomFun=tb_revisar_cmd&parm_pin=").concat(this.pin, "&parm_piso=").concat(this.pisoActual, "&parm_id_cmd=").concat(item.id_cmd, "&parm_tipocmd=1&parm_id_mesero=").concat(id, "&parm_tipo=M$");
         axios.get(url).then(function (_ref2) {
           var data = _ref2.data;
 
@@ -346,7 +381,8 @@ __webpack_require__.r(__webpack_exports__);
       var _this3 = this;
 
       var id = this.$store.getters.getUSERID;
-      axios.get("/conexion/cd_comanda.php?ip=".concat(this.ip, "&pin=").concat(this.pin, "&piso=").concat(this.pisoActual, "&parm_id_mesas=").concat(this.mesaId, "&parm_num=").concat(this.numcomen, "&parm_tipocmd=1&parm_id_mesero=").concat(id, "&comanda=2")).then(function (_ref3) {
+      var url = "".concat(this.ip, "/?nomFun=tb_new_cmd&parm_pin=").concat(this.pin, "&parm_piso=").concat(this.pisoActual, "&parm_id_mesas=").concat(this.mesaId, "&parm_num=").concat(this.numcomen, "&parm_tipocmd=1&parm_id_mesero=").concat(id, "&parm_tipo=M$");
+      axios.get(url).then(function (_ref3) {
         var data = _ref3.data;
 
         if (data.msg == "Ok") {
@@ -391,7 +427,7 @@ __webpack_require__.r(__webpack_exports__);
 
         id_mesas = id_mesas + "," + String(e.id);
       });
-      var url = "/conexion/cd_comanda.php?ip=".concat(this.ip, "&parm_id_cmd=").concat(id_cmd, "&parm_id_mesas=").concat(id_mesas, "&comanda=3");
+      var url = "".concat(this.ip, "/?nomFun=tb_juntar_mesa&parm_id_cmd=").concat(id_cmd, "&parm_id_mesas=").concat(id_mesas, "&parm_tipo=M$");
       axios.get(url).then(function (_ref4) {
         var data = _ref4.data;
 
@@ -411,6 +447,42 @@ __webpack_require__.r(__webpack_exports__);
         }
       })["catch"](function (error) {
         _this4.arrayMesas = [];
+        console.log(error);
+      });
+    },
+    separarMesas: function separarMesas() {
+      var _this5 = this;
+
+      var id = this.$store.getters.getUSERID;
+      var id_cmd = "";
+      var id_mesas = "";
+      this.arrayMesas.forEach(function (e) {
+        if (e.id_cmd != 0) {
+          id_cmd = e.id_cmd;
+        }
+
+        id_mesas = id_mesas + "," + String(e.id);
+      });
+      var url = "".concat(this.ip, "/?nomFun=tb_separar_mesa&parm_id_cmd=").concat(id_cmd, "&parm_id_mesa=").concat(id_mesas, "&parm_tipo=M$");
+      axios.get(url).then(function (_ref5) {
+        var data = _ref5.data;
+
+        if (data.msg == "Ok") {
+          _this5.getMesas(_this5.pisoActual);
+        } else {
+          Swal.fire({
+            title: "Advertencia!",
+            text: data.msg,
+            icon: "warning",
+            confirmButtonText: "Cool"
+          });
+
+          _this5.getMesas(_this5.pisoActual);
+
+          _this5.arrayMesas = [];
+        }
+      })["catch"](function (error) {
+        _this5.arrayMesas = [];
         console.log(error);
       });
     },
@@ -542,7 +614,20 @@ var render = function() {
               })
             }),
             1
-          )
+          ),
+          _vm._v(" "),
+          _c("v-spacer"),
+          _vm._v(" "),
+          _c("v-switch", {
+            attrs: { label: "Opciones de mesa" },
+            model: {
+              value: _vm.switchNavegator,
+              callback: function($$v) {
+                _vm.switchNavegator = $$v
+              },
+              expression: "switchNavegator"
+            }
+          })
         ],
         1
       ),
@@ -607,8 +692,8 @@ var render = function() {
                             {
                               name: "show",
                               rawName: "v-show",
-                              value: _vm.showJoins,
-                              expression: "showJoins"
+                              value: _vm.showJoinsMesa(item),
+                              expression: "showJoinsMesa(item)"
                             }
                           ],
                           class: _vm.checkJoin(index)
@@ -652,146 +737,152 @@ var render = function() {
         1
       ),
       _vm._v(" "),
-      _c(
-        "v-navigation-drawer",
-        {
-          attrs: {
-            app: "",
-            permanent: "",
-            right: "",
-            clipped: "",
-            width: "12rem",
-            height: "70vh"
-          }
-        },
-        [
-          _c(
-            "v-list",
-            { attrs: { dense: "" } },
+      _vm.switchNavegator
+        ? _c(
+            "v-navigation-drawer",
+            {
+              attrs: {
+                app: "",
+                permanent: "",
+                right: "",
+                clipped: "",
+                width: "12rem",
+                height: "70vh"
+              }
+            },
             [
               _c(
-                "v-list-item",
-                {
-                  on: {
-                    click: function($event) {
-                      return _vm.actionButton("JUNTAR")
-                    }
-                  }
-                },
+                "v-list",
+                { attrs: { dense: "" } },
                 [
                   _c(
-                    "v-list-item-icon",
-                    [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-list-item-content",
+                    "v-list-item",
+                    {
+                      on: {
+                        click: function($event) {
+                          return _vm.actionButton("JUNTAR")
+                        }
+                      }
+                    },
                     [
-                      _c("v-list-item-title", [
-                        _vm._v(_vm._s(_vm.showJoins == true ? "OK" : "JUNTAR"))
-                      ])
+                      _c(
+                        "v-list-item-icon",
+                        [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-item-content",
+                        [
+                          _c("v-list-item-title", [
+                            _vm._v(
+                              _vm._s(_vm.showJoins == true ? "OK" : "JUNTAR")
+                            )
+                          ])
+                        ],
+                        1
+                      )
                     ],
                     1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-list-item",
-                {
-                  on: {
-                    click: function($event) {
-                      return _vm.actionButton("COBRAR")
-                    }
-                  }
-                },
-                [
+                  ),
+                  _vm._v(" "),
                   _c(
-                    "v-list-item-icon",
-                    [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                    "v-list-item",
+                    {
+                      on: {
+                        click: function($event) {
+                          return _vm.actionButton("COBRAR")
+                        }
+                      }
+                    },
+                    [
+                      _c(
+                        "v-list-item-icon",
+                        [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-item-content",
+                        [_c("v-list-item-title", [_vm._v("COBRAR")])],
+                        1
+                      )
+                    ],
                     1
                   ),
                   _vm._v(" "),
                   _c(
-                    "v-list-item-content",
-                    [_c("v-list-item-title", [_vm._v("COBRAR")])],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-list-item",
-                {
-                  on: {
-                    click: function($event) {
-                      return _vm.actionButton("ELIMINAR")
-                    }
-                  }
-                },
-                [
-                  _c(
-                    "v-list-item-icon",
-                    [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-list-item-content",
-                    [_c("v-list-item-title", [_vm._v("ELIMINAR")])],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-list-item",
-                {
-                  on: {
-                    click: function($event) {
-                      return _vm.actionButton("SEPARAR")
-                    }
-                  }
-                },
-                [
-                  _c(
-                    "v-list-item-icon",
-                    [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                    "v-list-item",
+                    {
+                      on: {
+                        click: function($event) {
+                          return _vm.actionButton("ELIMINAR")
+                        }
+                      }
+                    },
+                    [
+                      _c(
+                        "v-list-item-icon",
+                        [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-item-content",
+                        [_c("v-list-item-title", [_vm._v("ELIMINAR")])],
+                        1
+                      )
+                    ],
                     1
                   ),
                   _vm._v(" "),
                   _c(
-                    "v-list-item-content",
-                    [_c("v-list-item-title", [_vm._v("SEPARAR")])],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-list-item",
-                {
-                  on: {
-                    click: function($event) {
-                      return _vm.actionButton("MOVER")
-                    }
-                  }
-                },
-                [
-                  _c(
-                    "v-list-item-icon",
-                    [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                    "v-list-item",
+                    {
+                      on: {
+                        click: function($event) {
+                          return _vm.actionButton("SEPARAR")
+                        }
+                      }
+                    },
+                    [
+                      _c(
+                        "v-list-item-icon",
+                        [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-item-content",
+                        [_c("v-list-item-title", [_vm._v("SEPARAR")])],
+                        1
+                      )
+                    ],
                     1
                   ),
                   _vm._v(" "),
                   _c(
-                    "v-list-item-content",
-                    [_c("v-list-item-title", [_vm._v("MOVER")])],
+                    "v-list-item",
+                    {
+                      on: {
+                        click: function($event) {
+                          return _vm.actionButton("MOVER")
+                        }
+                      }
+                    },
+                    [
+                      _c(
+                        "v-list-item-icon",
+                        [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-item-content",
+                        [_c("v-list-item-title", [_vm._v("MOVER")])],
+                        1
+                      )
+                    ],
                     1
                   )
                 ],
@@ -800,9 +891,7 @@ var render = function() {
             ],
             1
           )
-        ],
-        1
-      ),
+        : _vm._e(),
       _vm._v(" "),
       _c(
         "v-footer",
@@ -954,14 +1043,15 @@ render._withStripped = true
 /*!**************************************!*\
   !*** ./resources/js/views/Index.vue ***!
   \**************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Index_vue_vue_type_template_id_494d9643___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Index.vue?vue&type=template&id=494d9643& */ "./resources/js/views/Index.vue?vue&type=template&id=494d9643&");
 /* harmony import */ var _Index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Index.vue?vue&type=script&lang=js& */ "./resources/js/views/Index.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _Index_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Index.vue?vue&type=style&index=0&lang=css& */ "./resources/js/views/Index.vue?vue&type=style&index=0&lang=css&");
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _Index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _Index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+/* harmony import */ var _Index_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Index.vue?vue&type=style&index=0&lang=css& */ "./resources/js/views/Index.vue?vue&type=style&index=0&lang=css&");
 /* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -993,7 +1083,7 @@ component.options.__file = "resources/js/views/Index.vue"
 /*!***************************************************************!*\
   !*** ./resources/js/views/Index.vue?vue&type=script&lang=js& ***!
   \***************************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

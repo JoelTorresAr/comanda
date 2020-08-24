@@ -127,6 +127,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      switchNavegator: false,
       ip: "",
       familias: "",
       buttonKeys: [{
@@ -174,7 +175,7 @@ __webpack_require__.r(__webpack_exports__);
     getArticlesinMesa: function getArticlesinMesa() {
       var _this = this;
 
-      var url = "/conexion/cd_articulo.php?&parm_pin=".concat(this.pin, "&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&articulo=1&ip=").concat(this.ip);
+      var url = "".concat(this.ip, "/?nomFun=tb_item_3p&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$");
       axios.get(url).then(function (_ref) {
         var data = _ref.data;
 
@@ -196,7 +197,7 @@ __webpack_require__.r(__webpack_exports__);
     addToMesa: function addToMesa(item, index) {
       var _this2 = this;
 
-      var url = "/conexion/cd_articulo.php?&parm_pin=".concat(this.pin, "&parm_id_mesas=").concat(this.mesaId, "&parm_id_prod=").concat(index, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&articulo=2&ip=").concat(this.ip);
+      var url = "".concat(this.ip, "/?nomFun=tb_item&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_prod=").concat(index, "&parm_cant=1&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$");
       axios.get(url).then(function (_ref2) {
         var data = _ref2.data;
 
@@ -218,12 +219,15 @@ __webpack_require__.r(__webpack_exports__);
     addNote: function addNote() {
       var _this3 = this;
 
-      var url = "/conexion/cd_imprimir.php?nomFun=tb_new_notacmd&parm_pin=".concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&imprimmir=4&ip=").concat(this.ip, "&parm_nota=").concat(this.noteCmd);
+      var url = "".concat(this.ip, "/?nomFun=tb_new_notacmd&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_nota=").concat(this.noteCmd, "&parm_tipo=M$");
       axios.get(url).then(function (_ref3) {
         var data = _ref3.data;
         _this3.dialog = false;
 
-        if (data.msg == "OK") {} else {
+        if (data.msg == "OK") {
+          _this3.noteCmd = "";
+        } else {
+          _this3.noteCmd = "";
           Swal.fire({
             title: "Advertencia!",
             text: data.msg,
@@ -256,7 +260,7 @@ __webpack_require__.r(__webpack_exports__);
           confirmButtonText: "Cool"
         });
       } else {
-        var url = "/conexion/cd_articulo.php?&parm_pin=".concat(this.pin, "&parm_id_mesas=").concat(this.mesaId, "&parm_id_prod=").concat(item.idprod, "&parm_cant=").concat(cant, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&articulo=3&ip=").concat(this.ip);
+        var url = "".concat(this.ip, "/?nomFun=tb_item&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_prod=").concat(item.idprod, "&parm_cant=").concat(cant, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$");
         axios.get(url).then(function (_ref4) {
           var data = _ref4.data;
 
@@ -297,7 +301,7 @@ __webpack_require__.r(__webpack_exports__);
     sendKitchen: function sendKitchen() {
       var _this5 = this;
 
-      var url = "/conexion/cd_imprimir.php?nomFun=tb_enviar_cmd&parm_pin=".concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&imprimmir=2&ip=").concat(this.ip, "&parm_nota=").concat(this.noteCmd); //console.log(url)
+      var url = "".concat(this.ip, "/?nomFun=tb_enviar_cmd&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$"); //console.log(url)
 
       axios.get(url).then(function (_ref5) {
         var data = _ref5.data;
@@ -330,7 +334,7 @@ __webpack_require__.r(__webpack_exports__);
     sendPrecuenta: function sendPrecuenta() {
       var _this6 = this;
 
-      var url = "/conexion/cd_imprimir.php?nomFun=tb_cobrar_mesa&parm_pin=".concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_dade=1&parm_id_mesero=").concat(this.userID, "&imprimmir=3&ip=").concat(this.ip);
+      var url = "".concat(this.ip, "/?nomFun=tb_cobrar_mesa&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_dade=1&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$");
       axios.get(url).then(function (_ref6) {
         var data = _ref6.data;
 

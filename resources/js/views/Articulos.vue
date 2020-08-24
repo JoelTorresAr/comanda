@@ -116,6 +116,7 @@
 <script>
 export default {
   data: () => ({
+    switchNavegator: false,
     ip: "",
     familias: "",
     buttonKeys: [
@@ -138,7 +139,7 @@ export default {
   computed: {
     artList() {
       return this.articlesEnMesa;
-    }
+    },
   },
   created() {
     this.familias = JSON.parse(this.$store.getters.getFAMILIAS);
@@ -155,7 +156,7 @@ export default {
       this.articulos = fam.json_prod;
     },
     getArticlesinMesa() {
-      var url = `/conexion/cd_articulo.php?&parm_pin=${this.pin}&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&articulo=1&ip=${this.ip}`;
+      var url = `${this.ip}/?nomFun=tb_item_3p&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$`;
       axios
         .get(url)
         .then(({ data }) => {
@@ -176,7 +177,7 @@ export default {
         });
     },
     addToMesa(item, index) {
-      var url = `/conexion/cd_articulo.php?&parm_pin=${this.pin}&parm_id_mesas=${this.mesaId}&parm_id_prod=${index}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&articulo=2&ip=${this.ip}`;
+      var url = `${this.ip}/?nomFun=tb_item&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_prod=${index}&parm_cant=1&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$`;
       axios
         .get(url)
         .then(({ data }) => {
@@ -197,13 +198,15 @@ export default {
         });
     },
     addNote() {
-      var url = `/conexion/cd_imprimir.php?nomFun=tb_new_notacmd&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&imprimmir=4&ip=${this.ip}&parm_nota=${this.noteCmd}`;
+      var url = `${this.ip}/?nomFun=tb_new_notacmd&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_nota=${this.noteCmd}&parm_tipo=M$`;
       axios
         .get(url)
         .then(({ data }) => {
           this.dialog = false;
           if (data.msg == "OK") {
+            this.noteCmd = "";
           } else {
+            this.noteCmd = "";
             Swal.fire({
               title: "Advertencia!",
               text: data.msg,
@@ -232,7 +235,7 @@ export default {
           confirmButtonText: "Cool"
         });
       } else {
-        var url = `/conexion/cd_articulo.php?&parm_pin=${this.pin}&parm_id_mesas=${this.mesaId}&parm_id_prod=${item.idprod}&parm_cant=${cant}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&articulo=3&ip=${this.ip}`;
+        var url = `${this.ip}/?nomFun=tb_item&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_prod=${item.idprod}&parm_cant=${cant}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$`;
         axios
           .get(url)
           .then(({ data }) => {
@@ -270,7 +273,7 @@ export default {
       }
     },
     sendKitchen() {
-      var url = `/conexion/cd_imprimir.php?nomFun=tb_enviar_cmd&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&imprimmir=2&ip=${this.ip}&parm_nota=${this.noteCmd}`;
+      var url = `${this.ip}/?nomFun=tb_enviar_cmd&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$`;
       //console.log(url)
       axios
         .get(url)
@@ -298,7 +301,7 @@ export default {
         });
     },
     sendPrecuenta() {
-      var url = `/conexion/cd_imprimir.php?nomFun=tb_cobrar_mesa&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_dade=1&parm_id_mesero=${this.userID}&imprimmir=3&ip=${this.ip}`;
+      var url = `${this.ip}/?nomFun=tb_cobrar_mesa&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_dade=1&parm_id_mesero=${this.userID}&parm_tipo=M$`;
       axios
         .get(url)
         .then(({ data }) => {

@@ -12,6 +12,8 @@
           >{{item}}</v-btn>
         </v-slide-item>
       </v-slide-group>
+      <v-spacer></v-spacer>
+      <v-switch v-model="switchNavegator" label="Opciones de mesa"></v-switch>
     </v-app-bar>
     <v-main app>
       <perfect-scrollbar>
@@ -31,7 +33,7 @@
           >
             <v-card-title class="p-0">
               {{item.nombre}}
-              <i v-show="showJoins" :class="checkJoin(index)"></i>
+              <i v-show="showJoinsMesa(item)" :class="checkJoin(index)"></i>
             </v-card-title>
             <v-card-text class="pb-0">
               {{item.mesero}}
@@ -46,7 +48,7 @@
         </v-card>
       </perfect-scrollbar>
     </v-main>
-    <v-navigation-drawer app permanent right clipped width="12rem" height="70vh">
+    <v-navigation-drawer v-if="switchNavegator" app permanent right clipped width="12rem" height="70vh">
       <v-list dense>
         <v-list-item @click="actionButton('JUNTAR')">
           <v-list-item-icon>
@@ -146,6 +148,7 @@ export default {
   data: () => ({
     loading: true,
     showJoins: false,
+    switchNavegator: false,
     buttonKeys: [
       { accion: "JUNTAR", icon: "fas fa-circle-notch" },
       { accion: "COBRAR", icon: "fas fa-circle-notch" },
@@ -189,11 +192,10 @@ export default {
       this.pisoActual = piso;
       axios
         .get(
-          `/conexion/cd_mesas.php?ip=${this.ip}&pin=${this.pin}&piso=${piso}`
+          `${this.ip}/?nomFun=tb_mesas&parm_pin=${this.pin}&parm_piso=${piso}&parm_tipo=M$`
         )
         .then(({ data }) => {
           this.loading = false;
-          console.log(data.mesas);
           this.mesas = data.mesas;
         })
         .catch(error => {
@@ -215,7 +217,7 @@ export default {
 
         case "4":
           //Esta en preparción
-          icon = "mdi-pot-steam";
+          icon = "mdi mdi-pot-steam";
           break;
 
         default:
@@ -233,6 +235,14 @@ export default {
             this.showJoins = !this.showJoins;
           }
           break;
+        /*case "SEPARAR":
+          if (this.showJoins) {
+            this.showJoins = !this.showJoins;
+            this.separarMesas();
+          } else {
+            this.showJoins = !this.showJoins;
+          }
+          break;*/
 
         default:
           break;
@@ -241,13 +251,26 @@ export default {
     actionMesa(item, index) {
       var st_cmd = item.st_cmd;
       if (this.showJoins) {
-        var mesa = {
-          id: index,
-          id_cmd: item.id_cmd,
-          st_cmd: item.st_cmd,
-          st_join: 1
-        };
-        this.arrayMesas.push(mesa);
+        if ((st_cmd != "3") & (st_cmd != "4")) {
+          var existe = false;
+          this.arrayMesas.forEach(e => {
+            if (e.id == index) {
+              existe = true;
+            }
+          });
+          if (existe) {
+            var i = this.arrayMesas.indexOf(item);
+            this.arrayMesas.splice(i, 1);
+          } else {
+            var mesa = {
+              id: index,
+              id_cmd: item.id_cmd,
+              st_cmd: item.st_cmd,
+              st_join: 1
+            };
+            this.arrayMesas.push(mesa);
+          }
+        }
       } else {
         this.newComanda(item, index);
       }
@@ -261,6 +284,14 @@ export default {
       });
       return std;
     },
+    showJoinsMesa(item) {
+      var st_cmd = item.st_cmd;
+      var std = false;
+      if (this.showJoins & (st_cmd != "3") & (st_cmd != "4")) {
+        std = true;
+      }
+      return std;
+    },
     newComanda(item, index) {
       this.mesaId = index;
       this.mesaActual = item;
@@ -270,7 +301,7 @@ export default {
       if (item.st_cmd == "") {
         this.dialog = true;
       } else {
-        var url = `/conexion/cd_comanda.php?ip=${this.ip}&pin=${this.pin}&piso=${this.pisoActual}&parm_id_cmd=${item.id_cmd}&parm_tipocmd=1&parm_id_mesero=${id}&comanda=1`;
+        var url = `${this.ip}/?nomFun=tb_revisar_cmd&parm_pin=${this.pin}&parm_piso=${this.pisoActual}&parm_id_cmd=${item.id_cmd}&parm_tipocmd=1&parm_id_mesero=${id}&parm_tipo=M$`;
         axios
           .get(url)
           .then(({ data }) => {
@@ -310,10 +341,9 @@ export default {
     },
     saveComanda() {
       var id = this.$store.getters.getUSERID;
+      var url = `${this.ip}/?nomFun=tb_new_cmd&parm_pin=${this.pin}&parm_piso=${this.pisoActual}&parm_id_mesas=${this.mesaId}&parm_num=${this.numcomen}&parm_tipocmd=1&parm_id_mesero=${id}&parm_tipo=M$`;
       axios
-        .get(
-          `/conexion/cd_comanda.php?ip=${this.ip}&pin=${this.pin}&piso=${this.pisoActual}&parm_id_mesas=${this.mesaId}&parm_num=${this.numcomen}&parm_tipocmd=1&parm_id_mesero=${id}&comanda=2`
-        )
+        .get(url)
         .then(({ data }) => {
           if (data.msg == "Ok") {
             //this.getMesas(this.pisoActual);
@@ -350,7 +380,39 @@ export default {
         }
         id_mesas = id_mesas + "," + String(e.id);
       });
-      var url = `/conexion/cd_comanda.php?ip=${this.ip}&parm_id_cmd=${id_cmd}&parm_id_mesas=${id_mesas}&comanda=3`;
+      var url = `${this.ip}/?nomFun=tb_juntar_mesa&parm_id_cmd=${id_cmd}&parm_id_mesas=${id_mesas}&parm_tipo=M$`;
+      axios
+        .get(url)
+        .then(({ data }) => {
+          if (data.msg == "Ok") {
+            this.getMesas(this.pisoActual);
+          } else {
+            Swal.fire({
+              title: "Advertencia!",
+              text: data.msg,
+              icon: "warning",
+              confirmButtonText: "Cool"
+            });
+            this.getMesas(this.pisoActual);
+            this.arrayMesas = [];
+          }
+        })
+        .catch(error => {
+          this.arrayMesas = [];
+          console.log(error);
+        });
+    },
+    separarMesas() {
+      var id = this.$store.getters.getUSERID;
+      var id_cmd = "";
+      var id_mesas = "";
+      this.arrayMesas.forEach(e => {
+        if (e.id_cmd != 0) {
+          id_cmd = e.id_cmd;
+        }
+        id_mesas = id_mesas + "," + String(e.id);
+      });
+      var url = `${this.ip}/?nomFun=tb_separar_mesa&parm_id_cmd=${id_cmd}&parm_id_mesa=${id_mesas}&parm_tipo=M$`;
       axios
         .get(url)
         .then(({ data }) => {
