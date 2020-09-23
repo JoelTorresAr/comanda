@@ -154,11 +154,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       loading: true,
       showJoins: false,
+      actionButton: "",
       switchNavegator: false,
       buttonKeys: [{
         accion: "JUNTAR",
@@ -177,6 +183,7 @@ __webpack_require__.r(__webpack_exports__);
         icon: "fas fa-circle-notch"
       }],
       ip: "",
+      user: "",
       pisos: "",
       pisoActual: "0",
       mesas: "",
@@ -205,6 +212,7 @@ __webpack_require__.r(__webpack_exports__);
     this.pisos = JSON.parse(this.$store.getters.getPISOS);
     this.pin = this.$store.getters.getPIN;
     this.ip = this.$store.getters.getIP;
+    this.user = this.$store.getters.getUSERNAME;
     this.pisoActual = this.$store.getters.getPISO_ACTUAL;
   },
   methods: {
@@ -247,26 +255,45 @@ __webpack_require__.r(__webpack_exports__);
 
       return icon;
     },
-    actionButton: function actionButton(key) {
+    actionButtons: function actionButtons(key) {
       switch (key) {
         case "JUNTAR":
           if (this.showJoins) {
+            this.actionButton = "";
             this.showJoins = !this.showJoins;
             this.unirMesas();
           } else {
+            this.actionButton = "JUNTAR";
+            this.arrayMesas = [];
             this.showJoins = !this.showJoins;
           }
 
           break;
 
-        /*case "SEPARAR":
+        case "SEPARAR":
           if (this.showJoins) {
             this.showJoins = !this.showJoins;
             this.separarMesas();
           } else {
+            this.actionButton = "SEPARAR";
+            this.arrayMesas = [];
             this.showJoins = !this.showJoins;
           }
-          break;*/
+
+          break;
+
+        case "MOVER":
+          if (this.showJoins) {
+            this.showJoins = !this.showJoins;
+            this.moverMesas();
+          } else {
+            console.log("mover");
+            this.actionButton = "MOVER";
+            this.arrayMesas = [];
+            this.showJoins = !this.showJoins;
+          }
+
+          break;
 
         default:
           break;
@@ -275,47 +302,193 @@ __webpack_require__.r(__webpack_exports__);
     actionMesa: function actionMesa(item, index) {
       var st_cmd = item.st_cmd;
 
-      if (this.showJoins) {
-        if (st_cmd != "3" & st_cmd != "4") {
-          var existe = false;
-          this.arrayMesas.forEach(function (e) {
-            if (e.id == index) {
-              existe = true;
-            }
-          });
+      switch (this.actionButton) {
+        case "JUNTAR":
+          if (st_cmd != "3" & st_cmd != "4") {
+            var existe = false;
+            var ix;
+            this.arrayMesas.forEach(function (e) {
+              if (e.id == index) {
+                existe = true;
+                ix = e;
+              }
+            });
 
-          if (existe) {
-            var i = this.arrayMesas.indexOf(item);
-            this.arrayMesas.splice(i, 1);
-          } else {
-            var mesa = {
-              id: index,
-              id_cmd: item.id_cmd,
-              st_cmd: item.st_cmd,
-              st_join: 1
-            };
-            this.arrayMesas.push(mesa);
+            if (existe) {
+              var i = this.arrayMesas.indexOf(ix);
+              this.arrayMesas.splice(i, 1);
+            } else {
+              var mesa = {
+                id: index,
+                id_cmd: item.id_cmd,
+                st_cmd: item.st_cmd,
+                st_join: 1
+              };
+              this.arrayMesas.push(mesa);
+            }
           }
-        }
-      } else {
-        this.newComanda(item, index);
+
+          break;
+
+        case "SEPARAR":
+          if (item.juntada === 1) {
+            var existe = false;
+            var ix;
+            this.arrayMesas.forEach(function (e) {
+              if (e.id == index) {
+                existe = true;
+                ix = e;
+              }
+            });
+
+            if (existe) {
+              this.arrayMesas = [];
+            } else {
+              var mesa = {
+                id: index,
+                id_cmd: item.id_cmd,
+                st_cmd: item.st_cmd,
+                st_join: 1
+              };
+              this.arrayMesas = [];
+              this.arrayMesas.push(mesa);
+            }
+          }
+
+          break;
+
+        case "MOVER":
+          if (st_cmd != "3" & st_cmd != "4") {
+            var existe = false;
+            var ix;
+            this.arrayMesas.forEach(function (e) {
+              if (e.id == index) {
+                existe = true;
+                ix = e;
+              }
+            });
+
+            if (existe) {
+              var i = this.arrayMesas.indexOf(ix);
+              this.arrayMesas.splice(i, 1);
+            } else {
+              if (this.arrayMesas.length < 2) {
+                var mesa = {
+                  id: index,
+                  id_cmd: item.id_cmd,
+                  st_cmd: item.st_cmd,
+                  st_join: 1
+                };
+                this.arrayMesas.push(mesa);
+              }
+            }
+          }
+
+          break;
+
+        default:
+          this.newComanda(item, index);
+          break;
       }
     },
     checkJoin: function checkJoin(index) {
-      var std = "mdi mdi-checkbox-blank-outline";
-      this.arrayMesas.forEach(function (e) {
-        if (e.id == index) {
-          std = "mdi mdi-checkbox-marked-outline";
-        }
-      });
+      var std = "";
+
+      switch (this.actionButton) {
+        case "JUNTAR":
+          std = "mdi mdi-checkbox-blank-outline";
+          this.arrayMesas.forEach(function (e) {
+            if (e.id == index) {
+              std = "mdi mdi-checkbox-marked-outline";
+            }
+          });
+          break;
+
+        case "SEPARAR":
+          std = "mdi mdi-checkbox-blank-outline";
+          this.arrayMesas.forEach(function (e) {
+            if (e.id == index) {
+              std = "mdi mdi-checkbox-marked-outline";
+            }
+          });
+          break;
+
+        case "MOVER":
+          std = "mdi mdi-checkbox-blank-outline";
+          this.arrayMesas.forEach(function (e) {
+            if (e.id == index) {
+              std = "mdi mdi-checkbox-marked-outline";
+            }
+          });
+          break;
+
+        default:
+          break;
+      }
+
       return std;
     },
-    showJoinsMesa: function showJoinsMesa(item) {
+    showChecksinMesa: function showChecksinMesa(item) {
       var st_cmd = item.st_cmd;
       var std = false;
 
-      if (this.showJoins & st_cmd != "3" & st_cmd != "4") {
-        std = true;
+      switch (this.actionButton) {
+        case "JUNTAR":
+          if (this.showJoins & st_cmd != "3" & st_cmd != "4") {
+            std = true;
+          }
+
+          break;
+
+        case "SEPARAR":
+          if (this.showJoins & item.juntada === 1) {
+            std = true;
+          }
+
+          break;
+
+        case "MOVER":
+          if (this.showJoins & st_cmd != "3" & st_cmd != "4") {
+            std = true;
+          }
+          /*           var existewithCmd = false;
+          var existewithoutCmd = false;
+          var ixwith;
+          var ixwithout;
+          this.arrayMesas.forEach(e => {
+            if ((e.id == index) & (e.id_cmd === "")) {
+              existewithoutCmd = true;
+              ixwithout = e;
+            }
+            if ((e.id == index) & (e.id_cmd !== "")) {
+              existewithCmd = true;
+              ixwith = e;
+            }
+          });
+          if (
+            this.showJoins &
+            (st_cmd != "3") &
+            (st_cmd != "4") &
+            !existewithCmd
+          ) {
+            console.log("mesa sin comanda");
+            std = true;
+          }
+          if (
+            this.showJoins &
+            (st_cmd != "3") &
+            (st_cmd != "4") &
+            !existewithoutCmd
+          ) {
+            console.log("mesa con comanda");
+            std = true;
+          } */
+
+
+          break;
+
+        default:
+          break;
       }
 
       return std;
@@ -432,6 +605,8 @@ __webpack_require__.r(__webpack_exports__);
         var data = _ref4.data;
 
         if (data.msg == "Ok") {
+          _this4.arrayMesas = [];
+
           _this4.getMesas(_this4.pisoActual);
         } else {
           Swal.fire({
@@ -453,21 +628,22 @@ __webpack_require__.r(__webpack_exports__);
     separarMesas: function separarMesas() {
       var _this5 = this;
 
-      var id = this.$store.getters.getUSERID;
       var id_cmd = "";
-      var id_mesas = "";
+      var id_mesa = "";
       this.arrayMesas.forEach(function (e) {
         if (e.id_cmd != 0) {
           id_cmd = e.id_cmd;
         }
 
-        id_mesas = id_mesas + "," + String(e.id);
+        id_mesa = String(e.id);
       });
-      var url = "".concat(this.ip, "/?nomFun=tb_separar_mesa&parm_id_cmd=").concat(id_cmd, "&parm_id_mesa=").concat(id_mesas, "&parm_tipo=M$");
+      var url = "".concat(this.ip, "/?nomFun=tb_separar_mesa&parm_id_cmd=").concat(id_cmd, "&parm_id_mesa=").concat(id_mesa, "&parm_tipo=M$");
       axios.get(url).then(function (_ref5) {
         var data = _ref5.data;
 
-        if (data.msg == "Ok") {
+        if (data.msg == "OK") {
+          _this5.arrayMesas = [];
+
           _this5.getMesas(_this5.pisoActual);
         } else {
           Swal.fire({
@@ -483,6 +659,43 @@ __webpack_require__.r(__webpack_exports__);
         }
       })["catch"](function (error) {
         _this5.arrayMesas = [];
+        console.log(error);
+      });
+    },
+    moverMesas: function moverMesas() {
+      var _this6 = this;
+
+      var id_cmd = "";
+      var id_mesa = "";
+      this.arrayMesas.forEach(function (e) {
+        if (e.id_cmd != 0) {
+          id_cmd = e.id_cmd;
+        } else {
+          id_mesa = e.id;
+        }
+      });
+      var url = "".concat(this.ip, "/?nomFun=tb_mover_mesa&parm_id_cmd=").concat(id_cmd, "&parm_id_mesa=").concat(id_mesa, "&parm_tipo=M$");
+      axios.get(url).then(function (_ref6) {
+        var data = _ref6.data;
+
+        if (data.msg == "OK") {
+          _this6.arrayMesas = [];
+
+          _this6.getMesas(_this6.pisoActual);
+        } else {
+          Swal.fire({
+            title: "Advertencia!",
+            text: data.msg,
+            icon: "warning",
+            confirmButtonText: "Cool"
+          });
+
+          _this6.getMesas(_this6.pisoActual);
+
+          _this6.arrayMesas = [];
+        }
+      })["catch"](function (error) {
+        _this6.arrayMesas = [];
         console.log(error);
       });
     },
@@ -692,8 +905,8 @@ var render = function() {
                             {
                               name: "show",
                               rawName: "v-show",
-                              value: _vm.showJoinsMesa(item),
-                              expression: "showJoinsMesa(item)"
+                              value: _vm.showChecksinMesa(item),
+                              expression: "showChecksinMesa(item)"
                             }
                           ],
                           class: _vm.checkJoin(index)
@@ -760,7 +973,7 @@ var render = function() {
                     {
                       on: {
                         click: function($event) {
-                          return _vm.actionButton("JUNTAR")
+                          return _vm.actionButtons("JUNTAR")
                         }
                       }
                     },
@@ -776,7 +989,12 @@ var render = function() {
                         [
                           _c("v-list-item-title", [
                             _vm._v(
-                              _vm._s(_vm.showJoins == true ? "OK" : "JUNTAR")
+                              _vm._s(
+                                _vm.showJoins == true &&
+                                  _vm.actionButton === "JUNTAR"
+                                  ? "OK"
+                                  : "JUNTAR"
+                              )
                             )
                           ])
                         ],
@@ -791,7 +1009,7 @@ var render = function() {
                     {
                       on: {
                         click: function($event) {
-                          return _vm.actionButton("COBRAR")
+                          return _vm.actionButtons("SEPARAR")
                         }
                       }
                     },
@@ -804,7 +1022,18 @@ var render = function() {
                       _vm._v(" "),
                       _c(
                         "v-list-item-content",
-                        [_c("v-list-item-title", [_vm._v("COBRAR")])],
+                        [
+                          _c("v-list-item-title", [
+                            _vm._v(
+                              _vm._s(
+                                _vm.showJoins == true &&
+                                  _vm.actionButton === "SEPARAR"
+                                  ? "OK"
+                                  : "SEPARAR"
+                              )
+                            )
+                          ])
+                        ],
                         1
                       )
                     ],
@@ -816,7 +1045,7 @@ var render = function() {
                     {
                       on: {
                         click: function($event) {
-                          return _vm.actionButton("ELIMINAR")
+                          return _vm.actionButtons("MOVER")
                         }
                       }
                     },
@@ -829,57 +1058,18 @@ var render = function() {
                       _vm._v(" "),
                       _c(
                         "v-list-item-content",
-                        [_c("v-list-item-title", [_vm._v("ELIMINAR")])],
-                        1
-                      )
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-list-item",
-                    {
-                      on: {
-                        click: function($event) {
-                          return _vm.actionButton("SEPARAR")
-                        }
-                      }
-                    },
-                    [
-                      _c(
-                        "v-list-item-icon",
-                        [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "v-list-item-content",
-                        [_c("v-list-item-title", [_vm._v("SEPARAR")])],
-                        1
-                      )
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-list-item",
-                    {
-                      on: {
-                        click: function($event) {
-                          return _vm.actionButton("MOVER")
-                        }
-                      }
-                    },
-                    [
-                      _c(
-                        "v-list-item-icon",
-                        [_c("v-icon", [_vm._v("fas fa-circle-notch")])],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c(
-                        "v-list-item-content",
-                        [_c("v-list-item-title", [_vm._v("MOVER")])],
+                        [
+                          _c("v-list-item-title", [
+                            _vm._v(
+                              _vm._s(
+                                _vm.showJoins == true &&
+                                  _vm.actionButton === "MOVER"
+                                  ? "OK"
+                                  : "MOVER"
+                              )
+                            )
+                          ])
+                        ],
                         1
                       )
                     ],
@@ -901,6 +1091,8 @@ var render = function() {
           attrs: { app: "" }
         },
         [
+          _c("span", [_vm._v(_vm._s(_vm.user))]),
+          _vm._v(" "),
           _c("v-spacer"),
           _vm._v(" "),
           _c(
@@ -923,7 +1115,7 @@ var render = function() {
       _c(
         "v-dialog",
         {
-          attrs: { persistent: "", "max-width": "600px" },
+          attrs: { persistent: "", "max-width": "600px", height: "100rem" },
           model: {
             value: _vm.dialog,
             callback: function($$v) {
@@ -936,32 +1128,27 @@ var render = function() {
           _c(
             "v-card",
             [
-              _c("v-card-title", [
-                _c("span", { staticClass: "headline" }, [
-                  _vm._v("INGRESE CANTIDAD DE COMENSALES")
-                ])
-              ]),
-              _vm._v(" "),
               _c(
                 "v-card-text",
+                { staticClass: "p-0" },
                 [
                   _c(
                     "v-container",
+                    { staticClass: "pt-0 pb-0" },
                     [
                       _c(
                         "v-row",
                         [
                           _c(
                             "v-col",
-                            { attrs: { cols: "12" } },
+                            { staticClass: "pt-0 pb-0", attrs: { cols: "12" } },
                             [
                               _c("v-text-field", {
-                                staticClass: "centered-input mt-3 display-1",
+                                staticClass: "centered-input display-1",
                                 attrs: {
                                   type: "number",
                                   min: "1",
                                   maxlength: "2",
-                                  height: "10vh",
                                   counter: 2,
                                   rules: [
                                     function(v) {
@@ -986,15 +1173,14 @@ var render = function() {
                       )
                     ],
                     1
-                  ),
-                  _vm._v(" "),
-                  _c("small", [_vm._v("*indicates required field")])
+                  )
                 ],
                 1
               ),
               _vm._v(" "),
               _c(
                 "v-card-actions",
+                { staticClass: "pt-0 pb-0" },
                 [
                   _c("v-spacer"),
                   _vm._v(" "),
@@ -1043,15 +1229,14 @@ render._withStripped = true
 /*!**************************************!*\
   !*** ./resources/js/views/Index.vue ***!
   \**************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Index_vue_vue_type_template_id_494d9643___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Index.vue?vue&type=template&id=494d9643& */ "./resources/js/views/Index.vue?vue&type=template&id=494d9643&");
 /* harmony import */ var _Index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Index.vue?vue&type=script&lang=js& */ "./resources/js/views/Index.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _Index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _Index_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _Index_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Index.vue?vue&type=style&index=0&lang=css& */ "./resources/js/views/Index.vue?vue&type=style&index=0&lang=css&");
+/* empty/unused harmony star reexport *//* harmony import */ var _Index_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Index.vue?vue&type=style&index=0&lang=css& */ "./resources/js/views/Index.vue?vue&type=style&index=0&lang=css&");
 /* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -1083,7 +1268,7 @@ component.options.__file = "resources/js/views/Index.vue"
 /*!***************************************************************!*\
   !*** ./resources/js/views/Index.vue?vue&type=script&lang=js& ***!
   \***************************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

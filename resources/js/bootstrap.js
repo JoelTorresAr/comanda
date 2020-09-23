@@ -22,7 +22,8 @@ try {
 
 window.axios = require('axios');
 
-axios.defaults.headers.common['Access-Control-Request-Headers'] = 'Origin,X-Requested-With,Content-Type,Accept'
+/*axios.defaults.headers.common['Access-Control-Request-Headers'] = 'Origin,X-Requested-With,Content-Type,Accept'*/
+//axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*'
 axios.defaults.headers.common['Content-Type'] = 'application/json; charset=utf-8'
 /*
 window.axios.defaults.withCredentials = true;

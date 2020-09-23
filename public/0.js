@@ -123,7 +123,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -307,18 +306,14 @@ __webpack_require__.r(__webpack_exports__);
         var data = _ref5.data;
 
         if (data.msg == "OK") {
-          _this5.$store.dispatch("BREAK");
-
-          _this5.$router.push({
-            name: "Home"
-          });
-
           Swal.fire({
             title: "Enviado a cocina!",
             text: data.msg,
             icon: "success",
             confirmButtonText: "Cool"
           });
+
+          _this5.salir();
         } else {
           Swal.fire({
             title: "Advertencia!",
@@ -339,14 +334,11 @@ __webpack_require__.r(__webpack_exports__);
         var data = _ref6.data;
 
         if (data.msg == "Ok") {
-          _this6.$store.dispatch("BREAK");
-
-          _this6.$router.push({
-            name: "Home"
-          });
-
+          //this.$store.dispatch("BREAK");
           _this6.articlesEnMesa = data.prod;
           _this6.total = data.total;
+
+          _this6.salir();
         } else {
           Swal.fire({
             title: "Advertencia!",
@@ -360,9 +352,32 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     salir: function salir() {
-      this.$store.dispatch("BREAK");
-      this.$router.push({
-        name: "Home"
+      var _this7 = this;
+
+      var url = "".concat(this.ip, "/?nomFun=tb_des_cmd&parm_pin=").concat(this.pin, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$");
+      axios.get(url).then(function (_ref7) {
+        var data = _ref7.data;
+
+        if (data.msg == "Ok") {
+          _this7.$router.push({
+            name: "Home"
+          });
+        } else {
+          Swal.fire({
+            title: "Advertencia!",
+            text: data.msg,
+            icon: "warning",
+            confirmButtonText: "Cool"
+          }).then(function (result) {
+            if (result.value) {
+              _this7.$router.push({
+                name: "Home"
+              });
+            }
+          });
+        }
+      })["catch"](function (error) {
+        console.log(error);
       });
     }
   }
@@ -724,19 +739,21 @@ var render = function() {
             [
               _c(
                 "v-card-text",
+                { staticClass: "p-0" },
                 [
                   _c(
                     "v-container",
+                    { staticClass: "pt-0 pb-0" },
                     [
                       _c(
                         "v-row",
                         [
                           _c(
                             "v-col",
-                            { attrs: { cols: "12" } },
+                            { staticClass: "pt-0 pb-0", attrs: { cols: "12" } },
                             [
                               _c("v-text-field", {
-                                staticClass: "centered-input mt-3 display-1",
+                                staticClass: "centered-input display-1",
                                 attrs: {
                                   label: "Ingrese nota de comanda",
                                   type: "text",
@@ -763,15 +780,14 @@ var render = function() {
                       )
                     ],
                     1
-                  ),
-                  _vm._v(" "),
-                  _c("small", [_vm._v("*campos requeridos")])
+                  )
                 ],
                 1
               ),
               _vm._v(" "),
               _c(
                 "v-card-actions",
+                { staticClass: "pt-0 pb-0" },
                 [
                   _c("v-spacer"),
                   _vm._v(" "),

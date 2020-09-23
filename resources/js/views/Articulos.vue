@@ -86,12 +86,12 @@
     </v-footer>
     <v-dialog v-model="dialog" persistent max-width="600px">
       <v-card>
-        <v-card-text>
-          <v-container>
+        <v-card-text  class="p-0">
+          <v-container  class="pt-0 pb-0">
             <v-row>
-              <v-col cols="12">
+              <v-col cols="12"  class="pt-0 pb-0">
                 <v-text-field
-                  class="centered-input mt-3 display-1"
+                  class="centered-input display-1"
                   label="Ingrese nota de comanda"
                   type="text"
                   v-model="noteCmd"
@@ -101,9 +101,8 @@
               </v-col>
             </v-row>
           </v-container>
-          <small>*campos requeridos</small>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="pt-0 pb-0">
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="dialog = false">Close</v-btn>
           <v-btn color="blue darken-1" text @click="addNote">Save</v-btn>
@@ -139,7 +138,7 @@ export default {
   computed: {
     artList() {
       return this.articlesEnMesa;
-    },
+    }
   },
   created() {
     this.familias = JSON.parse(this.$store.getters.getFAMILIAS);
@@ -279,14 +278,13 @@ export default {
         .get(url)
         .then(({ data }) => {
           if (data.msg == "OK") {
-            this.$store.dispatch("BREAK");
-            this.$router.push({ name: "Home" });
             Swal.fire({
               title: "Enviado a cocina!",
               text: data.msg,
               icon: "success",
               confirmButtonText: "Cool"
             });
+            this.salir();
           } else {
             Swal.fire({
               title: "Advertencia!",
@@ -306,10 +304,10 @@ export default {
         .get(url)
         .then(({ data }) => {
           if (data.msg == "Ok") {
-            this.$store.dispatch("BREAK");
-            this.$router.push({ name: "Home" });
+            //this.$store.dispatch("BREAK");
             this.articlesEnMesa = data.prod;
             this.total = data.total;
+            this.salir();
           } else {
             Swal.fire({
               title: "Advertencia!",
@@ -324,8 +322,28 @@ export default {
         });
     },
     salir() {
-      this.$store.dispatch("BREAK");
-      this.$router.push({ name: "Home" });
+      var url = `${this.ip}/?nomFun=tb_des_cmd&parm_pin=${this.pin}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$`;
+      axios
+        .get(url)
+        .then(({ data }) => {
+          if (data.msg == "Ok") {
+            this.$router.push({ name: "Home" });
+          } else {
+            Swal.fire({
+              title: "Advertencia!",
+              text: data.msg,
+              icon: "warning",
+              confirmButtonText: "Cool"
+            }).then(result => {
+              if (result.value) {
+                this.$router.push({ name: "Home" });
+              }
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
   }
 };
