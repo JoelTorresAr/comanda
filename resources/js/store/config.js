@@ -1,6 +1,6 @@
 export const config = {
     state: {
-        ip: 'http://192.168.0.2:7000',
+        ip: 'http://192.168.1.69:7000',
         server: 0,
     },
     getters: {

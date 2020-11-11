@@ -248,6 +248,7 @@ export default {
           break;
         case "SEPARAR":
           if (this.showJoins) {
+            this.actionButton = "";
             this.showJoins = !this.showJoins;
             this.separarMesas();
           } else {
@@ -258,6 +259,7 @@ export default {
           break;
         case "MOVER":
           if (this.showJoins) {
+            this.actionButton = "";
             this.showJoins = !this.showJoins;
             this.moverMesas();
           } else {
@@ -453,7 +455,7 @@ export default {
       this.$store.commit("SET_ID_MESA_ACTUAL", index);
       var id = this.$store.getters.getUSERID;
       if (item.st_cmd == "") {
-        this.dialog = true;
+        this.saveComanda();
       } else {
         var url = `${this.ip}/?nomFun=tb_revisar_cmd&parm_pin=${this.pin}&parm_piso=${this.pisoActual}&parm_id_cmd=${item.id_cmd}&parm_tipocmd=1&parm_id_mesero=${id}&parm_tipo=M$`;
         axios
@@ -468,7 +470,7 @@ export default {
                   title: "Advertencia!",
                   text: data.msg,
                   icon: "warning",
-                  confirmButtonText: "Cool"
+                  confirmButtonText: "OK"
                 });
                 this.getMesas(this.pisoActual);
               } else {
@@ -479,7 +481,7 @@ export default {
                     title: "Advertencia!",
                     text: data.msg,
                     icon: "warning",
-                    confirmButtonText: "Cool"
+                    confirmButtonText: "OK"
                   });
                 } else {
                   this.$router.push({ name: "Store" });
@@ -514,10 +516,10 @@ export default {
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK"
             });
             this.getMesas(this.pisoActual);
-            this.dialog = false;
+           // this.dialog = false;
           }
         })
         .catch(error => {
@@ -546,7 +548,7 @@ export default {
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK"
             });
             this.getMesas(this.pisoActual);
             this.arrayMesas = [];
@@ -578,7 +580,7 @@ export default {
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK"
             });
             this.getMesas(this.pisoActual);
             this.arrayMesas = [];
@@ -611,7 +613,7 @@ export default {
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK"
             });
             this.getMesas(this.pisoActual);
             this.arrayMesas = [];

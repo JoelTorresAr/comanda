@@ -123,6 +123,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -174,7 +175,7 @@ __webpack_require__.r(__webpack_exports__);
     getArticlesinMesa: function getArticlesinMesa() {
       var _this = this;
 
-      var url = "".concat(this.ip, "/?nomFun=tb_item_3p&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$");
+      var url = "".concat(this.ip, "/?nomFun=tb_revisar_cmd&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$");
       axios.get(url).then(function (_ref) {
         var data = _ref.data;
 
@@ -186,7 +187,7 @@ __webpack_require__.r(__webpack_exports__);
             title: "Advertencia!",
             text: data.msg,
             icon: "warning",
-            confirmButtonText: "Cool"
+            confirmButtonText: "OK"
           });
         }
       })["catch"](function (error) {
@@ -208,7 +209,7 @@ __webpack_require__.r(__webpack_exports__);
             title: "Advertencia!",
             text: data.msg,
             icon: "warning",
-            confirmButtonText: "Cool"
+            confirmButtonText: "OK"
           });
         }
       })["catch"](function (error) {
@@ -231,7 +232,7 @@ __webpack_require__.r(__webpack_exports__);
             title: "Advertencia!",
             text: data.msg,
             icon: "warning",
-            confirmButtonText: "Cool"
+            confirmButtonText: "OK"
           });
         }
       })["catch"](function (error) {
@@ -256,7 +257,7 @@ __webpack_require__.r(__webpack_exports__);
           title: "Advertencia!",
           text: "Esta accion solo la puede ejecutar un administrador",
           icon: "warning",
-          confirmButtonText: "Cool"
+          confirmButtonText: "OK"
         });
       } else {
         var url = "".concat(this.ip, "/?nomFun=tb_item&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_prod=").concat(item.idprod, "&parm_cant=").concat(cant, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$");
@@ -271,7 +272,7 @@ __webpack_require__.r(__webpack_exports__);
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK"
             });
           }
         })["catch"](function (error) {
@@ -282,11 +283,11 @@ __webpack_require__.r(__webpack_exports__);
     actionButton: function actionButton(val) {
       switch (val) {
         case "cocina":
-          this.sendKitchen();
+          this.getPrintDataKitchen();
           break;
 
         case "precuenta":
-          this.sendPrecuenta();
+          this.getPrintDataPrecuenta();
           break;
 
         case "anotacion":
@@ -297,46 +298,54 @@ __webpack_require__.r(__webpack_exports__);
           break;
       }
     },
-    sendKitchen: function sendKitchen() {
+    getPrintDataKitchen: function getPrintDataKitchen() {
       var _this5 = this;
 
-      var url = "".concat(this.ip, "/?nomFun=tb_enviar_cmd&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$"); //console.log(url)
+      var url = "".concat(this.ip, "/?nomFun=tb_print_cocina&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$"); //console.log(url)
 
       axios.get(url).then(function (_ref5) {
         var data = _ref5.data;
 
-        if (data.msg == "OK") {
-          Swal.fire({
-            title: "Enviado a cocina!",
-            text: data.msg,
-            icon: "success",
-            confirmButtonText: "Cool"
-          });
+        if (data.msg == "Ok") {
+          var titulo = data.titulo;
+          var prod = data.prod;
+          var nro_print = data.nro_impresiones;
+          var mozo = data.mozo;
+          var nrocmd = data.nrocmd;
 
-          _this5.salir();
+          _this5.sendKitchen(titulo, prod, nro_print, mozo, nrocmd);
         } else {
           Swal.fire({
             title: "Advertencia!",
             text: data.msg,
             icon: "warning",
-            confirmButtonText: "Cool"
+            confirmButtonText: "OK"
           });
         }
       })["catch"](function (error) {
         console.log(error);
       });
     },
-    sendPrecuenta: function sendPrecuenta() {
+    sendKitchen: function sendKitchen(titulo, prod, nro_print, mozo, nrocmd) {
       var _this6 = this;
 
-      var url = "".concat(this.ip, "/?nomFun=tb_cobrar_mesa&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_dade=1&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$");
-      axios.get(url).then(function (_ref6) {
+      var url = "api/comanda/imprimir/cocina";
+      axios.post(url, {
+        titulo: titulo,
+        prod: prod,
+        nro_print: nro_print,
+        mozo: mozo,
+        nrocmd: nrocmd
+      }).then(function (_ref6) {
         var data = _ref6.data;
 
-        if (data.msg == "Ok") {
-          //this.$store.dispatch("BREAK");
-          _this6.articlesEnMesa = data.prod;
-          _this6.total = data.total;
+        if (data.msg == "OK") {
+          Swal.fire({
+            title: "Enviado a cocina!",
+            text: data.msg,
+            icon: "success",
+            confirmButtonText: "OK"
+          });
 
           _this6.salir();
         } else {
@@ -344,7 +353,69 @@ __webpack_require__.r(__webpack_exports__);
             title: "Advertencia!",
             text: data.msg,
             icon: "warning",
-            confirmButtonText: "Cool"
+            confirmButtonText: "OK"
+          });
+        }
+      })["catch"](function (error) {
+        if (error.response) {
+          if (error.response.status === 401) {}
+        }
+      });
+    },
+    getPrintDataPrecuenta: function getPrintDataPrecuenta() {
+      var _this7 = this;
+
+      var url = "".concat(this.ip, "/?nomFun=tb_print_precuenta&parm_pin=").concat(this.pin, "&parm_piso=20&parm_id_mesas=").concat(this.mesaId, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$");
+      axios.get(url).then(function (_ref7) {
+        var data = _ref7.data;
+
+        if (data.msg == "Ok") {
+          var empresa = data.empresa;
+          var cajero = data.cajero;
+          var mozo = data.mozo;
+          var mesas = data.mesas;
+          var prod = data.prod;
+          var sub_total = data.sub_total;
+          var adicionales = data.adicionales;
+          var total = data.total;
+
+          _this7.sendPrecuenta(empresa, cajero, mozo, mesas, prod, sub_total, adicionales, total);
+        } else {
+          Swal.fire({
+            title: "Advertencia!",
+            text: data.msg,
+            icon: "warning",
+            confirmButtonText: "OK"
+          });
+        }
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    },
+    sendPrecuenta: function sendPrecuenta(empresa, cajero, mozo, mesas, prod, sub_total, adicionales, total) {
+      var _this8 = this;
+
+      var url = "api/comanda/imprimir/precuenta";
+      axios.post(url, {
+        empresa: empresa,
+        cajero: cajero,
+        mozo: mozo,
+        mesas: mesas,
+        prod: prod,
+        sub_total: sub_total,
+        adicionales: adicionales,
+        total: total
+      }).then(function (_ref8) {
+        var data = _ref8.data;
+
+        if (data.msg == "OK") {
+          _this8.salir();
+        } else {
+          Swal.fire({
+            title: "Advertencia!",
+            text: data.msg,
+            icon: "warning",
+            confirmButtonText: "OK"
           });
         }
       })["catch"](function (error) {
@@ -352,14 +423,14 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     salir: function salir() {
-      var _this7 = this;
+      var _this9 = this;
 
       var url = "".concat(this.ip, "/?nomFun=tb_des_cmd&parm_pin=").concat(this.pin, "&parm_id_cmd=").concat(this.mesa.id_cmd, "&parm_id_mesero=").concat(this.userID, "&parm_tipo=M$");
-      axios.get(url).then(function (_ref7) {
-        var data = _ref7.data;
+      axios.get(url).then(function (_ref9) {
+        var data = _ref9.data;
 
         if (data.msg == "Ok") {
-          _this7.$router.push({
+          _this9.$router.push({
             name: "Home"
           });
         } else {
@@ -367,10 +438,10 @@ __webpack_require__.r(__webpack_exports__);
             title: "Advertencia!",
             text: data.msg,
             icon: "warning",
-            confirmButtonText: "Cool"
+            confirmButtonText: "OK"
           }).then(function (result) {
             if (result.value) {
-              _this7.$router.push({
+              _this9.$router.push({
                 name: "Home"
               });
             }
@@ -452,6 +523,8 @@ var render = function() {
   return _c(
     "v-app",
     [
+      _c("meta", { attrs: { charset: "utf-8" } }),
+      _vm._v(" "),
       _c(
         "v-navigation-drawer",
         {

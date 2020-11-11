@@ -1,33 +1,171 @@
 <template>
-  <v-row class="lime darken-4">
-    <v-col cols="0" sm="7"></v-col>
-    <v-col cols="12" sm="5">
+  <v-row
+    justify="end"
+    align="center"
+    style="
+      background-image: url('/img/fondo-login.jpg');
+      width: 100vw;
+      height: 100vh;
+      background-size: cover;
+    "
+  >
+    <v-col cols="12" sm="8" md="4">
       <v-card color="rgb(0, 0, 0, 0.4)" dark class="pa-2 mt-4">
-        <v-card-title class="text-center headline mt-3">
-          <v-text-field
-            class="centered-input white--text mt-3"
-            type="password"
-            maxlength="4"
-            v-model="password"
-            :counter="4"
-            :rules="[v => !!v || 'PIN requerido']"
-            required
-            disabled
-          ></v-text-field>
-        </v-card-title>
-        <v-card-text>
-          <div class="vuertual-numeric-keyboard bg-light rounded border p-3">
-            <v-btn
-              v-for="key in keys"
-              :key="key"
-              class="mx-2"
-              fab
-              dark
-              id="button__lenght"
-              color="rgb(0, 0, 0, 0.4)"
-              @click="actionButton(key)"
-            >{{key}}</v-btn>
-          </div>
+        <v-card-text class="black-color">
+          <v-row align="center">
+            <v-col cols="12" class="py-0">
+              <v-text-field
+                class="centered-input white--text mt-3"
+                type="password"
+                maxlength="4"
+                v-model="password"
+                :counter="4"
+                :rules="[(v) => !!v || 'PIN requerido']"
+                required
+                disabled
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton(7)"
+                >7</v-btn
+              ></v-col
+            >
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton(8)"
+                >8</v-btn
+              ></v-col
+            >
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton(9)"
+                >9</v-btn
+              ></v-col
+            >
+          </v-row>
+          <v-row>
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton(4)"
+                >4</v-btn
+              ></v-col
+            >
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton(5)"
+                >5</v-btn
+              ></v-col
+            >
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton(6)"
+                >6</v-btn
+              ></v-col
+            >
+          </v-row>
+          <v-row>
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton(1)"
+                >1</v-btn
+              ></v-col
+            >
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton(2)"
+                >2</v-btn
+              ></v-col
+            >
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton(3)"
+                >3</v-btn
+              ></v-col
+            >
+          </v-row>
+          <v-row>
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton('DEL')"
+                >DEL</v-btn
+              ></v-col
+            >
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton(0)"
+                >0</v-btn
+              ></v-col
+            >
+            <v-col cols="4" class="py-0">
+              <v-btn
+                class="mx-2"
+                fab
+                dark
+                id="button__lenght"
+                color="rgb(0, 0, 0, 0.8)"
+                @click="actionButton('Ok')"
+                >Ok</v-btn
+              ></v-col
+            >
+          </v-row>
         </v-card-text>
       </v-card>
     </v-col>
@@ -43,7 +181,7 @@ export default {
     loading: false,
     password: "",
     ip: "",
-    keys: [7, 8, 9, 4, 5, 6, 1, 2, 3, "DEL", 0, "Ok"]
+    keys: [7, 8, 9, 4, 5, 6, 1, 2, 3, "DEL", 0, "Ok"],
   }),
   watch: {
     password(val) {
@@ -53,7 +191,7 @@ export default {
       if (val.length == 4) {
         this.loggin();
       }
-    }
+    },
   },
   created() {
     this.ip = this.$store.getters.getIP;
@@ -95,15 +233,15 @@ export default {
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK",
             });
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
         });
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -119,6 +257,10 @@ export default {
   display: grid;
   grid-template-columns: auto auto auto;
   grid-gap: 10px;
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  border: none !important;
+}
+.black-color {
   background-color: rgba(0, 0, 0, 0.2) !important;
   border: none !important;
 }

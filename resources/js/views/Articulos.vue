@@ -1,5 +1,6 @@
 <template>
   <v-app>
+    <meta charset="utf-8" />
     <v-navigation-drawer app permanent fixed clipped width="35vw" height="70vh">
       <v-list-item v-for="(item, index) in artList" :key="index" class="pl-2 pr-2">
         <v-list-item-action class="mr-2">
@@ -86,10 +87,10 @@
     </v-footer>
     <v-dialog v-model="dialog" persistent max-width="600px">
       <v-card>
-        <v-card-text  class="p-0">
-          <v-container  class="pt-0 pb-0">
+        <v-card-text class="p-0">
+          <v-container class="pt-0 pb-0">
             <v-row>
-              <v-col cols="12"  class="pt-0 pb-0">
+              <v-col cols="12" class="pt-0 pb-0">
                 <v-text-field
                   class="centered-input display-1"
                   label="Ingrese nota de comanda"
@@ -155,7 +156,7 @@ export default {
       this.articulos = fam.json_prod;
     },
     getArticlesinMesa() {
-      var url = `${this.ip}/?nomFun=tb_item_3p&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$`;
+      var url = `${this.ip}/?nomFun=tb_revisar_cmd&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$`;
       axios
         .get(url)
         .then(({ data }) => {
@@ -167,7 +168,7 @@ export default {
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK"
             });
           }
         })
@@ -188,7 +189,7 @@ export default {
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK"
             });
           }
         })
@@ -210,7 +211,7 @@ export default {
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK"
             });
           }
         })
@@ -231,7 +232,7 @@ export default {
           title: "Advertencia!",
           text: "Esta accion solo la puede ejecutar un administrador",
           icon: "warning",
-          confirmButtonText: "Cool"
+          confirmButtonText: "OK"
         });
       } else {
         var url = `${this.ip}/?nomFun=tb_item&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_prod=${item.idprod}&parm_cant=${cant}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$`;
@@ -246,7 +247,7 @@ export default {
                 title: "Advertencia!",
                 text: data.msg,
                 icon: "warning",
-                confirmButtonText: "Cool"
+                confirmButtonText: "OK"
               });
             }
           })
@@ -258,10 +259,10 @@ export default {
     actionButton(val) {
       switch (val) {
         case "cocina":
-          this.sendKitchen();
+          this.getPrintDataKitchen();
           break;
         case "precuenta":
-          this.sendPrecuenta();
+          this.getPrintDataPrecuenta();
           break;
         case "anotacion":
           this.dialog = true;
@@ -271,26 +272,25 @@ export default {
           break;
       }
     },
-    sendKitchen() {
-      var url = `${this.ip}/?nomFun=tb_enviar_cmd&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$`;
+    getPrintDataKitchen() {
+      var url = `${this.ip}/?nomFun=tb_print_cocina&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$`;
       //console.log(url)
       axios
         .get(url)
         .then(({ data }) => {
-          if (data.msg == "OK") {
-            Swal.fire({
-              title: "Enviado a cocina!",
-              text: data.msg,
-              icon: "success",
-              confirmButtonText: "Cool"
-            });
-            this.salir();
+          if (data.msg == "Ok") {
+            var titulo = data.titulo;
+            var prod = data.prod;
+            var nro_print = data.nro_impresiones;
+            var mozo = data.mozo;
+            var nrocmd = data.nrocmd;
+            this.sendKitchen(titulo, prod, nro_print, mozo, nrocmd);
           } else {
             Swal.fire({
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK"
             });
           }
         })
@@ -298,22 +298,91 @@ export default {
           console.log(error);
         });
     },
-    sendPrecuenta() {
-      var url = `${this.ip}/?nomFun=tb_cobrar_mesa&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_dade=1&parm_id_mesero=${this.userID}&parm_tipo=M$`;
+    sendKitchen(titulo, prod, nro_print, mozo, nrocmd) {
+      var url = `api/comanda/imprimir/cocina`;
       axios
-        .get(url)
+        .post(url, {
+          titulo: titulo,
+          prod: prod,
+          nro_print: nro_print,
+          mozo: mozo,
+          nrocmd: nrocmd
+        })
         .then(({ data }) => {
-          if (data.msg == "Ok") {
-            //this.$store.dispatch("BREAK");
-            this.articlesEnMesa = data.prod;
-            this.total = data.total;
+          if (data.msg == "OK") {
+            Swal.fire({
+              title: "Enviado a cocina!",
+              text: data.msg,
+              icon: "success",
+              confirmButtonText: "OK"
+            });
             this.salir();
           } else {
             Swal.fire({
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK"
+            });
+          }
+        })
+        .catch(error => {
+          if (error.response) {
+            if (error.response.status === 401) {
+            }
+          }
+        });
+    },
+    getPrintDataPrecuenta() {
+      var url = `${this.ip}/?nomFun=tb_print_precuenta&parm_pin=${this.pin}&parm_piso=20&parm_id_mesas=${this.mesaId}&parm_id_cmd=${this.mesa.id_cmd}&parm_id_mesero=${this.userID}&parm_tipo=M$`;
+      axios
+        .get(url)
+        .then(({ data }) => {
+          if (data.msg == "Ok") {
+            var empresa = data.empresa;
+            var cajero = data.cajero;
+            var mozo = data.mozo;
+            var mesas = data.mesas;
+            var prod = data.prod;
+            var sub_total = data.sub_total;
+            var adicionales = data.adicionales;
+            var total = data.total;
+            this.sendPrecuenta(empresa, cajero, mozo, mesas, prod,sub_total, adicionales,total);
+          } else {
+            Swal.fire({
+              title: "Advertencia!",
+              text: data.msg,
+              icon: "warning",
+              confirmButtonText: "OK"
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    sendPrecuenta(empresa, cajero, mozo, mesas, prod,sub_total, adicionales,total) {
+      var url = `api/comanda/imprimir/precuenta`;
+      axios
+        .post(url, {
+          empresa: empresa,
+          cajero: cajero,
+          mozo: mozo,
+          mesas: mesas,
+          prod: prod,
+          sub_total: sub_total,
+          adicionales: adicionales,
+          total: total
+        })
+        .then(({ data }) => {
+          if (data.msg == "OK") {
+            this.salir();
+          } else {
+            Swal.fire({
+              title: "Advertencia!",
+              text: data.msg,
+              icon: "warning",
+              confirmButtonText: "OK"
             });
           }
         })
@@ -333,7 +402,7 @@ export default {
               title: "Advertencia!",
               text: data.msg,
               icon: "warning",
-              confirmButtonText: "Cool"
+              confirmButtonText: "OK"
             }).then(result => {
               if (result.value) {
                 this.$router.push({ name: "Home" });
